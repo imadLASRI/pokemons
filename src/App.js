@@ -1,25 +1,43 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
+import Navbar from './Components/Navbar/Navbar'
+import Home from './Components/Home/Home'
+import PokemonDetails from './Components/PokemonDetails/PokemonDetails'
+import Types from './Components/Types/Types'
 import './App.css';
 
-function App() {
+export default function App() {
+  const [pokemons, setPokemons] = useState({})
+  const [pageNumber, setPageNumber] = useState(1)
+
+  useEffect(() => {
+      fetch(`https://pokeapi.co/api/v2/pokemon/?limit=8&offset=${8*pageNumber}`)
+          .then(response => response.json())
+          .then(data => {
+              setPokemons(data);
+          })
+          .catch((err) => {
+              console.log(err);
+      });
+  }, [pageNumber])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Navbar/>
+      <div className="App">
+        <Switch>
+          <Route path="/" exact>
+            <Home pokemons={ pokemons } pageNumber={ pageNumber } setPageNumber={ setPageNumber }/>
+          </Route>
+          <Route path="/type/:type">
+            <Types />
+          </Route>
+          <Route path="/pokemon/:id">
+            <PokemonDetails />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
-
-export default App;
